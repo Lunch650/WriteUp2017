@@ -166,6 +166,7 @@
   `http://ip/?login=aaa&cert=data:text/plain,aaa`
 
 ## 0x02应用安全
+
 1. Tomcat默认后台
 
   打开页面出现了Tomcat默认页面，选择Manage App登陆。
@@ -173,8 +174,6 @@
   又随手试了几个，123456成功进入后台。
 
   在网上下载了几个jsp大马，deploy后进入，最后在root文件夹下面找到thekey文件。
-
-  Key`18eef833bc3da70ae4d71d94697fcdea`
 
 2. SQLinjection and Getshell
 
@@ -305,7 +304,7 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
 ## 0x03数据库安全
 
-  1. sql注入
+1. sql注入
 
   是个SQLSERVER注入题
 
@@ -356,7 +355,7 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
   `select thekey from news`
 
-  2. Mongodb注入
+2. Mongodb注入
 
   因为以前没有了解过No-SQL的数据库，看到题目的时候也是一脸黑线，学习了一些MongoDB的知识。
 
@@ -381,12 +380,12 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
   然后得到Key。
 
-  3. X-Forwarded注入
+3. X-Forwarded注入
 
   这道题简直虐心，可能是注入类题目中最难得一个了，其中考察了报错注入。
   有空再补。
 
-  4. 通用型防注入程序设计缺陷利用
+4. 通用型防注入程序设计缺陷利用
 
   打开页面就展示了是个sql防注入系统，随手在id=1后面加了`'`，跳转到一个防注入页面。
   ![sqlin.png](imgs/sqlin.png)
@@ -401,11 +400,11 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
 ## 0x04系统安全
 
-  1. 文件反编译
+1. 文件反编译
 
   反编译类的题目不会。
 
-  2. 无线破解
+2. 无线破解
 
   下载一个`miyao.ivs`的文件，提示无线密码就是Key。
   上网下载了Aircrack-ng，打开文件自动就把密钥算了出来。`securitytest1`,
@@ -413,7 +412,7 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
 ## 0x05其他安全
 
-  1.解密
+1. 解密
 
   是个Misc类的题目,给了个算法和图片。
 
