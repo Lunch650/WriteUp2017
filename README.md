@@ -174,8 +174,6 @@
 
   在网上下载了几个jsp大马，deploy后进入，最后在root文件夹下面找到thekey文件。
 
-  Key`18eef833bc3da70ae4d71d94697fcdea`
-
 2. SQLinjection and Getshell
 
   题目给的是骑士CMSv3.2版本，题目给了提示是SQLinjection，上网找了资料。
